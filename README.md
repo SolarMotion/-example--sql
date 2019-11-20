@@ -1,5 +1,5 @@
-# SQL Server Examples
-List of examples.<br/><br/>
+# MSSQL Examples
+List of examples for SQL Server.<br/><br/>
 
 ## Try...Catch...Rollback
 ```
