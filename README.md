@@ -1,6 +1,5 @@
-# SQL Examples
-List of examples.
-
+# SQL Server Examples
+List of examples.<br/><br/>
 
 ## Try...Catch...Rollback
 ```
@@ -26,4 +25,10 @@ BEGIN CATCH
     ROLLBACK TRANSACTION;
 END CATCH;
 GO
+```
+
+## Delete all data and set the autonumber to 0 (When not available truncate)
+```
+DELETE FROM TABLENAME
+DBCC CHECKIDENT ('DATABASENAME.dbo.TABLENAME',RESEED, 0)
 ```
