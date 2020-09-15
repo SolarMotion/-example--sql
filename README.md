@@ -32,3 +32,45 @@ GO
 DELETE FROM TABLENAME
 DBCC CHECKIDENT ('DATABASENAME.dbo.TABLENAME',RESEED, 0)
 ```
+
+
+## Running number
+```
+CREATE PROCEDURE [dbo].[usp_transfer_serial_range_generate]
+(
+	@TransferID INT
+)
+AS
+
+BEGIN
+SET NOCOUNT ON
+BEGIN TRAN
+
+-- Variables
+DECLARE @TrnTransferItemValidationID AS INT
+DECLARE @SerialFrom BIGINT, @SerialTo BIGINT
+DECLARE @DateTimeNow DATETIME
+
+-- Delete existing records
+SELECT @TrnTransferItemValidationID = ID FROM trnTransferItemValidation WHERE TransferID = @TransferID AND IsActive = 1
+DELETE FROM tmpTransferItemValidation WHERE TrnTransferItemValidationID IN (SELECT ID FROM trnTransferItemValidation WHERE TransferID = @TransferID)
+
+-- Generate serial range
+SELECT @SerialFrom = SerialFrom, @SerialTo = SerialTo FROM trnTransferItemValidation WHERE ID = @TrnTransferItemValidationID
+SELECT @DateTimeNow = dbo.GetDateMY()
+
+;WITH gen AS (
+	SELECT @SerialFrom AS num
+	UNION all
+	SELECT num + 1 FROM gen WHERE num + 1 <= @SerialTo
+)
+INSERT INTO tmpTransferItemValidation(TrnTransferItemValidationID, ImeiSerial, IsValid)
+SELECT	@TrnTransferItemValidationID, num, 0
+FROM	gen
+OPTION (maxrecursion 0)
+
+COMMIT
+END
+
+GO
+```
